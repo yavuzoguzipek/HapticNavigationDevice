@@ -1,0 +1,208 @@
+# Blender MTL File: 'None'
+# Material Count: 21
+
+newmtl Foregrou.003
+Ns 90.196078
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.164706 0.164706 0.164706
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Foregrou.004
+Ns 90.196078
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.164706 0.164706 0.164706
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Foregrou.005
+Ns 92.156863
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.000000
+Ks 0.164706 0.164706 0.164706
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl FrontCol.001
+Ns 92.156863
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.164706 0.164706 0.164706
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.001_NONE.000
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Zemin\yangin_uv.png
+
+newmtl Material.001_asansorkapisi.png.000
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd asansorkapisi.png
+
+newmtl Material.001_asansortus.bmp.001
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd textures\asansortus.bmp
+
+newmtl Material.001_ciftkapi.png.001
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Zemin\ciftkapi.png
+
+newmtl Material.001_ciftsinifkapisi.png.000
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ciftsinifkapisi.png
+
+newmtl Material.001_door.bmp.000
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Zemin\door.png
+
+newmtl Material.001_door.png.000
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Zemin\door.png
+
+newmtl Material.001_door.png.001
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Zemin\door.png
+
+newmtl Material.001_duyurupanosu.jpg.000
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd duyurupanosu.jpg
+
+newmtl Material.001_kalorifer.jpg.000
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd kalorifer.jpg
+
+newmtl Material.001_teksinifkapisi.png.000
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd teksinifkapisi.png
+
+newmtl Material.001_untitled.png.002
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Zemin\untitled.png
+
+newmtl Material.001_untitled.png.003
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Zemin\untitled.png
+
+newmtl Material.001_yanginsondurucu.png.000
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd yanginsondurucu.png
+
+newmtl Material.003
+Ns 86.274510
+Ka 0.000000 0.000000 0.000000
+Kd 0.327680 0.320562 0.287400
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd elektrikpanosu.png
+
+newmtl Vegetati.000
+Ns 90.196078
+Ka 0.000000 0.000000 0.000000
+Kd 0.289130 0.321255 0.182714
+Ks 0.164706 0.164706 0.164706
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\Users\Pala\Documents\Visual Studio 2015\Projects\modelleme\model\DisMekan\Vegetati.jpg
+
+newmtl Vegetati.003
+Ns 90.196078
+Ka 0.000000 0.000000 0.000000
+Kd 0.289130 0.321255 0.182714
+Ks 0.164706 0.164706 0.164706
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd C:\Users\Pala\Documents\Visual Studio 2015\Projects\modelleme\model\DisMekan\Vegetati.jpg

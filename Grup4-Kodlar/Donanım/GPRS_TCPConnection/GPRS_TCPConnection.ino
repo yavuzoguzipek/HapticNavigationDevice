@@ -1,0 +1,734 @@
+#include "GPRS_Shield_Arduino.h"
+#include <SoftwareSerial.h>
+#include <Wire.h>
+#include "TinyGPS.h"
+#include <Stepper.h>
+#include "HMC5883L.h"
+#define SSID "ODIN"
+#define PASS "odinholizon_2015"
+
+
+////////////////////////////////wifi
+const int ledPin =  13;
+
+//#define BUFFER_SIZE 128     //Tampon boyutunu belirler
+//char buffer[BUFFER_SIZE];   //Tamponu oluşturduk
+int ledState = LOW;
+double signalArray[50];   //30
+const char *signalMac[50];   // 30
+
+int myFirstLocation ;
+
+      // burhan tel     90-18-7C-2F-74-02   
+      // burhan pc  
+      // serap   BE-52-B7-40-69-78
+      // hazel  58-A2-B5-79-5F-D5
+      // bayram BA-98-F7-08-EC-DD
+      // buse D0-22-BE-D1-DE-8C
+      // ömer 22-88-65-87-D9-2B
+const char *telMacs2[50]; //30
+//const char *telMacs[] = {"\"90:18:7c:2f:74:02\"", "\"be:52:b7:40:69:78\"",  "\"58:a2:b5:79:5f:d5\"", "\"ba:98:f7:08:ec:dd\"", "\"d0:22:be:d1:de:8c\"", "\"22:88:65:87:d9:2b\""};
+                             double telSignals[] = { -100, -100, -100, -100, -100,-100, -100, -100, -100, -100,-100 };  
+const char *telMacs[] = {"\"90:18:7c:2f:74:02\"", "\"ba:98:f7:08:ec:cd\"",  "\"58:a2:b5:79:5f:d5\"", "\"ba:98:f7:08:ec:dd\"", "\"b2:fd:61:4f:5d:e0\"", "\"52:b7:c3-38:fc:6a\"",   
+              "\"d0:22:be:d1:de:8c\"" , "\"be:52:b7:40:69:78\"", "\"d2:7e:35:2f:b2:c8\"", "\"22:88:65:87:d9:2b\"",  
+                         "\"5a:ed:b9:2f:93:21\""};
+// burhan tel     90-18-7C-2F-74-02   giriş
+// bayram         ba:98:f7:08:ec:dd
+// hazel          58:a2:b5:79:5f:d5
+// emrah          58:48:22:37:2f:53
+// sevgi          b2:fd:61:4f:5d:e0
+// sevgi pc       52:b7:c3-38:fc:6a
+// buse           d0:22:be:d1:de:8c
+// serap          be:52:b7:40:69:78
+// serap pc       d2:7e:35:2f:b2:c8
+// ömer           22:88:65:87:d9:2b
+// buse pc        5a:ed:b9:2f:93:21
+
+
+
+///////////////////////////////////step motor
+ 
+#define STEPS_PER_MOTOR_REVOLUTION 32   
+ 
+#define STEPS_PER_OUTPUT_REVOLUTION 32 * 64  //2048  
+
+//The pin connections need to be 4 pins connected
+// to Motor Driver In1, In2, In3, In4  and then the pins entered
+// here in the sequence 1-3-2-4 for proper sequencing
+Stepper small_stepper(STEPS_PER_MOTOR_REVOLUTION, 22, 26, 24, 28);   // 3, 5, 4, 6
+Stepper small_stepper2(STEPS_PER_MOTOR_REVOLUTION, 38, 42, 40, 44);   // 3, 5, 4, 6
+
+
+int  Steps2Take;
+////////////////////////////////////
+#define PHONE_NUMBER   "+905424693459" //"+905457647653" //"+905377951824"  
+#define MESSAGE  "Hello World"
+
+
+////////////////////////////////////////  pusula
+
+// Store our compass as a variable.
+HMC5883L compass;
+// Record any errors that may occur in the compass.
+int error = 0;
+//float headingDegrees;
+////////////////////////////
+ 
+
+///////////////////////////////////////////////////////////////// gps 
+TinyGPS gps;
+
+#define GPS_TX_DIGITAL_OUT_PIN 5
+#define GPS_RX_DIGITAL_OUT_PIN 6
+
+long startMillis;
+long secondsToFirstLocation = 0;
+
+#define DEBUG
+
+float latitude = 0.0;
+float longitude = 0.0;
+////////////////////////////////////////////////////////////////////////
+
+#define PIN_TX    11
+#define PIN_RX    10
+//make sure that the baud rate of SIM900 is 9600!
+//you can use the AT Command(AT+IPR=9600) to set it through SerialDebug
+#define BAUDRATE  9600
+
+char http_cmd[] = "                       ";
+// char http_cmd[] = "client             ";
+char  deneme [25] ;
+char  deneme2[] = "         ";
+char  deneme3[] = "         ";
+char  deneme4[] = "   ";
+char  deneme5[] = "  ";
+
+char buffer[512];
+char buffer2[512];
+
+GPRS gprs(PIN_TX, PIN_RX, BAUDRATE);
+
+int isIndoor = 0;
+
+char * smsMessage;
+void sendMessage(){
+    gprs.sendSMS(PHONE_NUMBER,smsMessage); //define phone number and text
+}
+
+
+void setup(){
+
+
+  //digitalWrite(0, HIGH); 
+  //analogWrite(10,200);
+    /////////////////////////////// gps
+
+    #ifdef DEBUG
+  Serial.begin(19200);
+  #endif
+  
+  // Serial1 is GPS
+  Serial1.begin(9600);
+  
+  
+  // prevent controller pins 5 and 6 from interfering with the comms from GPS
+  pinMode(GPS_TX_DIGITAL_OUT_PIN, INPUT);
+  pinMode(GPS_RX_DIGITAL_OUT_PIN, INPUT);
+  
+  startMillis = millis();
+  Serial.println("Starting");
+    //////////////////////////////
+
+
+
+setupPusula();
+
+
+
+
+
+
+
+
+  Serial.begin(9600);
+  
+  
+  Serial3.begin(115200);
+  pinMode(2, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  Serial.println("Setup Begin!");
+  delay(1000);
+  digitalWrite(2, HIGH);
+
+  
+   
+  /*
+  
+  while(1){
+    turnStepMotor2(-45);
+    turnStepMotor2(45);
+  }*/
+  // use DHCP
+  if(false == gprs.init()){
+    Serial.println("gprs init error");
+  }
+  // attempt DHCP
+  while(false == gprs.join(F("internet"),F("default"),F("default"))) {
+      Serial.println("gprs join network error");
+  }
+
+  // successful DHCP
+  Serial.print("IP Address is ");
+  Serial.println(gprs.getIPAddress());
+
+    while(false == gprs.connect(TCP,"193.140.134.43", 8001)){  // 193.140.134.42
+        Serial.println("connect error");
+        delay(500);
+    }   
+    Serial.println("connect mbed.org success");
+  
+	int isInDoor;
+    float temp; 
+    Serial.println("waiting to fetch...");
+
+ 
+      int ret ; 
+ 
+ 
+  char* split;
+  buffer[0] = '1';
+ 
+//	do{
+    gprs.send(http_cmd, sizeof(http_cmd)-1);
+    delay(1000);
+	  ret= gprs.recv(buffer, sizeof(buffer)-1);
+    Serial.print("buf:"); Serial.println(buffer);
+//	}while( strcmp(buffer, "5")!= 0   || strcmp(buffer, "0")!= 0  );
+ 
+	 if (ret <= 0){
+		Serial.println("fetch over...");
+	}
+ 
+ 
+
+
+  
+	if(strcmp(buffer, "5") == 0  ) // wifi calisacak
+		isIndoor = 1;
+	else
+		isIndoor = 0;	// gps
+
+	Serial.print("isIndoor = ");
+	Serial.println(isIndoor);
+
+    while (true) {
+		if(isIndoor){
+      do{
+			   loadWifi();
+      }while( myFirstLocation == 0 );
+      Serial.print("myFirstLocation:"); Serial.println(myFirstLocation);
+     sprintf (deneme5, "%d",  myFirstLocation );
+      int j;
+       for(j=0; j<2;++j)
+           http_cmd[j] = deneme5[j];
+           
+      loopPusula();       ////////////// pusula ////////////////
+		}else if(isIndoor==0){
+          Serial.println("GPS-OUT");
+        	readLocation();        ////////////// gps ////////////////
+          loopPusula();       ////////////// pusula ////////////////
+     
+     int d1 = latitude;
+     Serial.println(d1);
+     float f2 = latitude - d1; // fractional part
+     int d2 = trunc(f2 * 10000);
+     Serial.println(d2);
+     float f3 = f2 * 10000 - d2;   // Get next fractional part .
+     int d3 = trunc(f3 * 100);   // Turn into integer.
+     Serial.println(d3);
+     delay(120);
+    sprintf (deneme2, "%d.%04d%02d", d1, d2, d3 );
+     
+     int d4 = longitude;
+     Serial.println(d4);
+     float f4 = longitude - d4; // fractional part
+     int d5 = trunc(f4 * 10000);
+     
+     Serial.print("D5 : ");
+     Serial.println(d5);
+     
+     
+     float f5 = f4 * 10000 - d5;   // Get next fractional part .
+     
+     int d6 = trunc(f5 * 100);   // Turn into integer.
+     delay(120);
+     sprintf (deneme3, "%d.%04d%02d",  d4, d5, d6 );
+    
+       int j=0;
+       for(j=0; j<9;++j){
+       http_cmd[j] = deneme2[j]; 
+       http_cmd[j+10] = deneme3[j];
+       }
+
+       Serial.print("deger1: ");
+       Serial.println(http_cmd);
+
+       
+       Serial.print("deger2: ");
+       Serial.println(http_cmd);
+		}
+	      
+
+
+
+
+        Serial.print("send cmd:"); Serial.println(http_cmd);
+       gprs.send(http_cmd, sizeof(http_cmd)-1);
+
+      delay(1000);
+
+
+	    ret = gprs.recv(buffer, sizeof(buffer)-1);
+	    if (ret <= 0){
+		   Serial.println("fetch over...");
+	    }
+    Serial.print("buf:");
+    Serial.println(buffer);
+    Serial.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+		split=strtok(buffer," ");
+		if(strcmp(split, "5") == 0 || ( buffer[0]==' ' && buffer[1]=='5') ){ // wifi calisacak
+			isIndoor = 1;
+			split = strtok(NULL, " ");
+		}
+		else if(split != NULL )
+			isIndoor = 0;
+
+    Serial.println(split);
+		if( strcmp(split, "0") == 0 ){
+		    Serial.print("FLAG 0\n");
+		    split=strtok(NULL," ");
+          if(split!=NULL){
+    		    Serial.println(atof(split));
+    		    Serial.println("derece donecek");
+    		    //sprintf (smsMessage, "%d derece donuyorum",  atof(split) );
+    		    smsMessage = "donuyorum";
+    		    turnStepMotor(atof(split));
+    		    sendMessage();
+    		     //turnStepMotor2(180);
+		  }
+		}else if( strcmp(split, "1") == 0  ){
+		    Serial.print("FLAG 1\n");
+		    split=strtok(NULL," ");
+		    if(split != NULL){
+          Serial.print("flag1/ Split:"); Serial.println(split);
+		    	if(atof(split) != 1){ // Donmus ise aciyi eski haline getirip ileri gider
+					smsMessage = "ileri gidiyorum";
+              Serial.print("don&ileriiiiii");
+				    sendMessage();
+				    turnStepMotor(atof(split));	// Aciyi eski haline getir
+				    turnStepMotor2(50);	// Ileri
+		     	}
+			  	else if(atof(split) == 1){	// Donmemis ama ileri gidecek
+             Serial.print("ileriiiiii");
+					   turnStepMotor2(50);	// Ileri
+				}
+		    }
+		} else if( strcmp(split, "2") == 0  ){
+		    Serial.print("FLAG 2\n");
+        split=strtok(NULL," ");
+        if(split != NULL){
+          turnStepMotor2(-50);
+        }
+        smsMessage = "duruyorum";
+		    
+		} else
+      Serial.println("Attention!!!! Uwaga");
+       
+        
+        
+      buffer[ret] = '\0';
+      Serial.print("Recv: ");
+      Serial.print(ret);
+      Serial.print(" bytes: ");
+      Serial.println(buffer);
+
+   
+ 
+  }
+ gprs.close();
+ gprs.disconnect();
+
+}
+
+void loop(){
+
+     
+  
+    
+}
+
+
+
+
+////////////////////////////////////////// gps
+
+//--------------------------------------------------------------------------------------------
+void readLocation(){
+  bool newData = false;
+  unsigned long chars = 0;
+  unsigned short sentences, failed;
+
+  // For one second we parse GPS data and report some key values
+  for (unsigned long start = millis(); millis() - start < 1000;)
+  {
+    while (Serial1.available())
+    {
+      int c = Serial1.read();
+//      Serial.print((char)c); // if you uncomment this you will see the raw data from the GPS
+      ++chars;
+      if (gps.encode(c)) // Did a new valid sentence come in?
+        newData = true;
+    }
+  }
+  
+  if (newData)
+  {
+    // we have a location fix so output the lat / long and time to acquire
+    if(secondsToFirstLocation == 0){
+      secondsToFirstLocation = (millis() - startMillis) / 1000;
+      Serial.print("Acquired in:");
+      Serial.print(secondsToFirstLocation);
+      Serial.println("s");
+    }
+    
+    unsigned long age;
+    gps.f_get_position(&latitude, &longitude, &age);
+    
+    latitude == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : latitude;
+    longitude == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : longitude;
+    
+    Serial.print("Location: ");
+    Serial.print(latitude, 6);
+    Serial.print(" , ");
+    Serial.print(longitude, 6);
+    Serial.println("");
+
+  
+ 
+
+
+ 
+ //Serial.print("deneme:");
+ //Serial.println( http_cmd );
+   // snprintf(http_cmd, SIZE, "%f", latitude);
+ //   sprintf(http_cmd, "%.4g", latitude );
+//   http_cmd[0] = (char *)latitude ; 
+    //http_cmd = (char *)longitude; 
+    
+  }
+  
+  if (chars == 0){
+    // if you haven't got any chars then likely a wiring issue
+    Serial.println("Check wiring");
+  }
+  else if(secondsToFirstLocation == 0){
+    // still working
+  }
+}
+///////////////////////////////////////////////////////
+
+
+void turnStepper(int motorX, int angle){
+
+    Steps2Take  =  - STEPS_PER_OUTPUT_REVOLUTION / 2;  //  (+)Clockwise, (-)Counter-Clockwise 
+    
+    switch(motorX){
+      case 1:{
+          small_stepper.setSpeed(700);  
+          small_stepper.step(Steps2Take);
+      } break;
+      case 2:{
+          small_stepper2.setSpeed(700);  
+          small_stepper2.step(Steps2Take);
+      } break;
+ 
+    }
+
+
+    delay(300);
+}
+
+
+
+
+/////////////////////////// turn step motor
+  void turnStepMotor(int angle){
+  int turnRatio = 360 / angle;
+  Steps2Take  =  - STEPS_PER_OUTPUT_REVOLUTION / turnRatio;  // Rotate CCW 1/2 turn  
+  small_stepper.setSpeed(700);  // 700 a good max speed??
+  small_stepper.step(Steps2Take);
+  delay(300);
+ 
+
+}
+
+////////////////////////////////////////
+
+/////////////////////////// turn step motor
+  void turnStepMotor2(int angle){
+   int turnRatio = 360 / angle;
+  Steps2Take  =  - STEPS_PER_OUTPUT_REVOLUTION / turnRatio; 
+  small_stepper2.setSpeed(700);  // 700 a good max speed??
+  small_stepper2.step(Steps2Take);
+  delay(300);
+ 
+
+}
+
+////////////////////////////////////////
+
+
+
+void loopPusula()
+{
+  // Retrive the raw values from the compass (not scaled).
+  MagnetometerRaw raw = compass.ReadRawAxis();
+  // Retrived the scaled values from the compass (scaled to the configured scale).
+  MagnetometerScaled scaled = compass.ReadScaledAxis();
+  
+  // Values are accessed like so:
+  int MilliGauss_OnThe_XAxis = scaled.XAxis;// (or YAxis, or ZAxis)
+
+  // Calculate heading when the magnetometer is level, then correct for signs of axis.
+  float heading = atan2(scaled.YAxis, scaled.XAxis);
+  
+  // Once you have your heading, you must then add your 'Declination Angle', which is the 'Error' of the magnetic field in your location.
+  // Find yours here: http://www.magnetic-declination.com/
+  // Mine is: 2� 37' W, which is 2.617 Degrees, or (which we need) 0.0456752665 radians, I will use 0.0457
+  // If you cannot find your Declination, comment out these two lines, your compass will be slightly off.
+  float declinationAngle = 0.0457;
+  heading += declinationAngle;
+  
+  // Correct for when signs are reversed.
+  if(heading < 0)
+    heading += 2*PI;
+    
+  // Check for wrap due to addition of declination.
+  if(heading > 2*PI)
+    heading -= 2*PI;
+   
+  // Convert radians to degrees for readability.
+  float  headingDegrees = heading * 180/M_PI; 
+
+ 
+
+   Serial.print("   \tHeading:\t");
+   Serial.print(heading);
+   Serial.print(" Radians2   \t");
+   Serial.print(headingDegrees);
+   Serial.println(" Degrees2   \t");
+
+         sprintf (deneme4, "%3d", (int)headingDegrees   );
+          Serial.print(">HheadingDegrees: ");
+          Serial.println( deneme4 );
+          http_cmd[20] = deneme4[0]; 
+          http_cmd[21] = deneme4[1]; 
+          http_cmd[22] = deneme4[2];
+
+  
+
+}
+
+void  setupPusula(){
+  
+       Serial.begin(9600);
+   ///////////////////////////////////////////// pusula 
+ 
+  Wire.begin(); // Start the I2C interface.
+   compass = HMC5883L(); // Construct a new HMC5883 compass.
+  error = compass.SetScale(2.5); // Set the scale of the compass.
+  if(error != 0) // If there is an error, print it out.
+    Serial.println(compass.GetErrorText(error));
+  
+  error = compass.SetMeasurementMode(Measurement_Continuous); // Set the measurement mode to Continuous
+  if(error != 0) // If there is an error, print it out.
+    Serial.println(compass.GetErrorText(error));
+/////////////////////////////////////////////
+  }
+
+  /////////////////////////////////// wifi
+void loadWifi(){
+    sendData("AT+CWLAP\r\n", 2000, true); 
+       connectWiFi(SSID, PASS); 
+    //   delay(100);
+  
+  }
+  
+ 
+String sendData(String command, const int timeout, boolean debug)
+{
+  String response = "";     //server' ın bize vereceği cevap
+
+  Serial3.print(command); // server a gönderdiğimiz komut
+ 
+  long int time = millis();     //timeout ın ilk değeri
+
+  while ( (time + timeout) > millis())
+  {
+    while (Serial3.available())
+    {
+
+      // The esp has data so display its output to the serial window
+      char c = Serial3.read(); // read the next character.
+      response += c;
+      
+       
+    }
+
+  }
+
+   const char s[2] = ",";
+   char *token;
+   
+   /* get the first token */
+   char tab2[1024];
+   strcpy(tab2, response.c_str());
+   token = strtok( tab2, s);
+   token = strtok(NULL, s);
+   token = strtok(NULL, s);
+   /* walk through other tokens */
+   int i = 0; int j=0; int t=0;
+   int temp = 2;
+
+   while( token != NULL )    {
+    
+      delay(5);
+      if( ( (i-1)%4 == 0 ) && token[0]=='-'){
+        signalArray[j] = atof(token);
+        ++j;
+      }    
+      
+      if( i == temp ){  //&& token[0]=="\""
+        signalMac[t++] = token;
+        temp+=4;
+      }
+
+      token = strtok(NULL, s);
+      ++i;
+   }
+
+
+
+
+
+
+   
+     int c, d, n =j;
+     const char *swap2;
+     double swap;
+
+     for(c=0; c<j; ++c)
+         telMacs2[c] =  signalMac[c]; 
+   
+      for(c=0; c < n-1; c++){
+            for(d=1; d < n-c; d++){
+                if(signalArray[d-1] < signalArray[d]){
+                    swap=signalArray[d-1];
+                    signalArray[d-1] = signalArray[d];
+                    signalArray[d] = swap;
+
+                    swap2=telMacs2[d-1];
+                    telMacs2[d-1] = telMacs2[d];
+                    telMacs2[d] = swap2;
+                }
+            }
+     }
+
+
+
+
+int sayac, sayac2,  flagSayac = 1;
+    for(sayac=0; sayac<j && flagSayac; ++sayac){
+        for(sayac2=0; sayac2<11 && flagSayac; ++sayac2){
+          if(  strcmp (telMacs2[sayac], telMacs[sayac2] )== 0 ){
+                  telMacs2[0] = telMacs2[sayac];
+                  signalArray[0] = signalArray[sayac];
+                  flagSayac = 0;
+            }
+         }
+     }
+ 
+Serial.print( telMacs2[0] ); Serial.println("-*-");
+ 
+    int k;
+    for(k=0; k<j;++k){
+    Serial.print("Mac:");
+   Serial.println( telMacs2[k]  ); 
+   Serial.print("Signal:");
+   Serial.println( signalArray[k] );
+    }
+    Serial.println( "****************************************************" );
+  
+  
+    if(  strcmp (telMacs2[0], telMacs[0] )== 0  /*&& ( myFirstLocation==1 ||  myFirstLocation==2 ||  myFirstLocation==11) */ ){
+            Serial.print(myFirstLocation);
+            Serial.println("Giris");
+            myFirstLocation = 17;
+    } else if( strcmp (telMacs2[0], telMacs[1] )== 0 /*&& ( myFirstLocation==1 ||  myFirstLocation==2 ||  myFirstLocation==3) */){
+      Serial.print(myFirstLocation);
+            Serial.println("kantin");
+            myFirstLocation = 18;
+    } else if( strcmp (telMacs2[0], telMacs[2] )== 0 /*&& ( myFirstLocation==2 ||  myFirstLocation==3 ||  myFirstLocation==4) */){
+      Serial.print(myFirstLocation);
+             Serial.println("z19+wc");
+            myFirstLocation = 19;
+    } else if( strcmp (telMacs2[0], telMacs[3]) == 0 /* && ( myFirstLocation==3 ||  myFirstLocation==4 ||  myFirstLocation==5)  */){
+      Serial.print(myFirstLocation);
+            Serial.println("z11");
+            myFirstLocation = 20;
+    } else if( strcmp (telMacs2[0], telMacs[4] )== 0 /* && ( myFirstLocation==4 ||  myFirstLocation==5 ||  myFirstLocation==6)  */ ){
+      Serial.print(myFirstLocation);
+            Serial.println("z06");
+            myFirstLocation = 21;
+    }  else if( strcmp (telMacs2[0], telMacs[5] )== 0  /*&& ( myFirstLocation==5 ||  myFirstLocation==6 ||  myFirstLocation==7) */  ){
+      Serial.print(myFirstLocation);
+            Serial.println("z02");
+            myFirstLocation = 22;
+    } else if( strcmp (telMacs2[0], telMacs[6] )== 0 ){
+      Serial.print(myFirstLocation);
+             Serial.println("z04");
+            myFirstLocation = 23;
+    } else if( strcmp (telMacs2[0], telMacs[7]) == 0 ){
+      Serial.print(myFirstLocation);
+            Serial.println("z5-z10");
+            myFirstLocation = 24;
+    } else if( strcmp (telMacs2[0], telMacs[8] )== 0  ){
+      Serial.print(myFirstLocation);
+            Serial.println("z12");
+            myFirstLocation = 25;
+    }  else if( strcmp (telMacs2[0], telMacs[9] )== 0   ){
+      Serial.print(myFirstLocation);
+            Serial.println("z20+kızwc");
+            myFirstLocation = 26;
+    }  else if( strcmp (telMacs2[0], telMacs[10] )== 0   ){
+      Serial.print(myFirstLocation);
+            Serial.println("z23");
+            myFirstLocation = 27;
+    }  else {Serial.print(myFirstLocation);
+        Serial.println("default");
+    } 
+ 
+ 
+  return response;    //cevabı geri döndürdük
+}
+
+void connectWiFi(String NetworkSSID, String NetworkPASS) {
+  String cmd = "AT+CWJAP=\"";
+  cmd += NetworkSSID;
+  cmd += "\",\"";
+  cmd += NetworkPASS;
+  cmd += "\"";
+
+    sendData(cmd, 2000, true);
+}

@@ -1,0 +1,89 @@
+# Blender MTL File: 'untitled.blend1'
+# Material Count: 9
+
+newmtl Material.000
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.638031 0.640000 0.414552
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd asansor3.png
+
+newmtl Material.000_NONE
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.638031 0.640000 0.414552
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl Material.000_ciftkapi1.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.638031 0.640000 0.414552
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd ciftkapi1.png
+
+newmtl Material.000_door.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.638031 0.640000 0.414552
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd Zemin\door.png
+
+newmtl Material.000_door2.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.638031 0.640000 0.414552
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd door2.png
+
+newmtl Material.000_pano_uv.png.001
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.638031 0.640000 0.414552
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd pano_uv.png
+
+newmtl Material.000_yangin_uv.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.638031 0.640000 0.414552
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd yangin_uv.png
+
+newmtl None
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd door2.png
+
+newmtl dikey
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.503467 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
